@@ -3,33 +3,779 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>InkTube</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>InkTube - Ad-Free Video Experience</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #ff0000;
+      --primary-dark: #cc0000;
+      --dark-bg: #0f0f0f;
+      --dark-card: #202020;
+      --dark-text: #f1f1f1;
+      --light-text: #aaa;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --border-radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      color: var(--dark-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) var(--spacing-xl);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -1px;
+    }
+
+    .logo i {
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    .search-bar {
+      flex: 1;
+      max-width: 600px;
+      margin: 0 var(--spacing-xl);
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px 50px 10px 20px;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--dark-text);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .search-bar input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(30, 30, 30, 0.9);
+      box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+    }
+
+    .search-bar button {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      color: var(--dark-text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .search-bar button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    nav {
+      display: flex;
+      gap: var(--spacing-md);
+    }
+
+    nav a {
+      color: var(--dark-text);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      transition: var(--transition);
+      padding: 8px;
+      border-radius: var(--border-radius);
+    }
+
+    nav a i {
+      font-size: 1.2rem;
+    }
+
+    nav a:hover, nav a.active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    nav a.upload {
+      color: var(--primary);
+    }
+
+    .user-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+
+    .user-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+    }
+
+    .sidebar {
+      width: 240px;
+      padding: var(--spacing-lg) var(--spacing-md);
+      overflow-y: auto;
+      position: sticky;
+      top: 80px;
+      height: calc(100vh - 80px);
+      flex-shrink: 0;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius);
+      margin-bottom: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .sidebar-item:hover, .sidebar-item.active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-item i {
+      margin-right: var(--spacing-md);
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-item.active i {
+      color: var(--primary);
+    }
+
+    .sidebar h3 {
+      padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+      font-size: 0.9rem;
+      color: var(--light-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: var(--spacing-lg) var(--spacing-xl);
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .video-card {
+      background: var(--dark-card);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .thumbnail {
+      position: relative;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      overflow: hidden;
+    }
+
+    .thumbnail img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+
+    .video-card:hover .thumbnail img {
+      transform: scale(1.05);
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .video-info {
+      padding: var(--spacing-md);
+    }
+
+    .channel-info {
+      display: flex;
+      margin-top: var(--spacing-sm);
+      align-items: flex-start;
+    }
+
+    .channel-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #555;
+      flex-shrink: 0;
+      margin-right: var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .video-details {
+      flex: 1;
+    }
+
+    .video-title {
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .channel-name {
+      color: var(--light-text);
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .video-meta {
+      color: var(--light-text);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 8px;
+    }
+
+    .video-player-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--spacing-xl) 0;
+    }
+
+    .video-player {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+      border-radius: var(--border-radius);
+      background: #000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .video-player video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      outline: none;
+    }
+
+    .player-info {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-md) 0;
+    }
+
+    .video-actions {
+      display: flex;
+      gap: var(--spacing-md);
+    }
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 50px;
+      padding: 8px 16px;
+      color: var(--dark-text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .action-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .download-button {
+      background: var(--primary);
+      color: white;
+      font-weight: 500;
+    }
+
+    .download-button:hover {
+      background: var(--primary-dark);
+    }
+
+    .related-videos {
+      margin-top: var(--spacing-xl);
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.8);
+      padding: var(--spacing-xl);
+      text-align: center;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--light-text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    .copyright {
+      color: var(--light-text);
+      font-size: 0.9rem;
+    }
+
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      padding: var(--spacing-sm) 0;
+      z-index: 100;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mobile-nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    @media (max-width: 1200px) {
+      .sidebar {
+        width: 200px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .sidebar {
+        display: none;
+      }
+      
+      .search-bar {
+        margin: 0 var(--spacing-md);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .logo h1 {
+        font-size: 1.5rem;
+      }
+      
+      .user-actions .btn {
+        display: none;
+      }
+      
+      .video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+      
+      .mobile-nav {
+        display: block;
+      }
+      
+      nav {
+        display: none;
+      }
+      
+      .video-player-container {
+        padding: var(--spacing-md);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .search-bar {
+        display: none;
+      }
+      
+      .logo {
+        flex: 1;
+      }
+      
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .player-info {
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
-    <h1>InkTube</h1>
+    <div class="logo">
+      <i class="fas fa-play-circle"></i>
+      <h1>InkTube</h1>
+    </div>
+    
+    <div class="search-bar">
+      <input type="text" placeholder="Search videos...">
+      <button><i class="fas fa-search"></i></button>
+    </div>
+    
     <nav>
-      <a href="#">Home</a>
-      <a href="#">Trending</a>
-      <a href="#">Upload</a>
+      <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+      <a href="#"><i class="fas fa-fire"></i> Trending</a>
+      <a href="#" class="upload"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
+      <a href="#"><i class="fas fa-history"></i> History</a>
     </nav>
+    
+    <div class="user-actions">
+      <button class="btn"><i class="fas fa-bell"></i></button>
+      <div class="user-icon">U</div>
+    </div>
   </header>
-
-  <main>
-    <section class="video-card">
-      <video controls src="assets/sample.mp4" id="main-video"></video>
-      <div class="video-info">
-        <h2>Sample Video Title</h2>
-        <button onclick="downloadVideo()">⬇ Download</button>
+  
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-item active">
+        <i class="fas fa-home"></i> Home
       </div>
-    </section>
-  </main>
-
+      <div class="sidebar-item">
+        <i class="fas fa-fire"></i> Trending
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-film"></i> Subscriptions
+      </div>
+      
+      <h3>Library</h3>
+      <div class="sidebar-item">
+        <i class="fas fa-history"></i> History
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-clock"></i> Watch later
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-thumbs-up"></i> Liked videos
+      </div>
+      
+      <h3>Categories</h3>
+      <div class="sidebar-item">
+        <i class="fas fa-gamepad"></i> Gaming
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-music"></i> Music
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-basketball-ball"></i> Sports
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-laptop-code"></i> Technology
+      </div>
+      <div class="sidebar-item">
+        <i class="fas fa-lightbulb"></i> Education
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <!-- Video Player Section -->
+      <div class="video-player-container">
+        <div class="video-player">
+          <video controls id="main-video">
+            <source src="assets/sample.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        
+        <div class="player-info">
+          <div class="video-details">
+            <h2 class="video-title">Creating Stunning UI Designs with CSS - A Complete Tutorial</h2>
+            <div class="video-meta">
+              <span>125K views</span>
+              <span>•</span>
+              <span>2 days ago</span>
+            </div>
+          </div>
+          
+          <div class="video-actions">
+            <button class="action-button">
+              <i class="fas fa-thumbs-up"></i> 8.2K
+            </button>
+            <button class="action-button">
+              <i class="fas fa-thumbs-down"></i> 42
+            </button>
+            <button class="action-button">
+              <i class="fas fa-share"></i> Share
+            </button>
+            <button class="action-button download-button" onclick="downloadVideo()">
+              <i class="fas fa-download"></i> Download
+            </button>
+          </div>
+        </div>
+        
+        <!-- Channel Info -->
+        <div class="channel-card">
+          <div class="channel-info">
+            <div class="channel-icon">D</div>
+            <div>
+              <div class="channel-name">Design Mastery</div>
+              <div class="subscribers">245K subscribers</div>
+            </div>
+            <button class="action-button" style="margin-left: auto;">Subscribe</button>
+          </div>
+          <p class="video-description">
+            Learn how to create stunning UI designs using modern CSS techniques. In this comprehensive tutorial, we'll cover Flexbox, Grid, animations, and responsive design principles. Perfect for beginners and experienced developers alike!
+          </p>
+        </div>
+      </div>
+      
+      <!-- Related Videos -->
+      <div class="related-videos">
+        <h3 class="section-title">Related Videos</h3>
+        <div class="video-grid">
+          <!-- Video Card 1 -->
+          <div class="video-card">
+            <div class="thumbnail">
+              <img src="https://i.ytimg.com/vi/4deVCNJq3qc/hq720.jpg" alt="Thumbnail">
+              <div class="video-duration">12:45</div>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title">Advanced CSS Animations You Need to Know</h3>
+              <div class="channel-info">
+                <div class="channel-icon">W</div>
+                <div class="video-details">
+                  <div class="channel-name">Web Dev Simplified</div>
+                  <div class="video-meta">98K views • 1 week ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Video Card 2 -->
+          <div class="video-card">
+            <div class="thumbnail">
+              <img src="https://i.ytimg.com/vi/jV8B24rSN5o/hq720.jpg" alt="Thumbnail">
+              <div class="video-duration">18:22</div>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title">Mastering CSS Grid Layout in 2023</h3>
+              <div class="channel-info">
+                <div class="channel-icon">C</div>
+                <div class="video-details">
+                  <div class="channel-name">CSS Masters</div>
+                  <div class="video-meta">152K views • 3 days ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Video Card 3 -->
+          <div class="video-card">
+            <div class="thumbnail">
+              <img src="https://i.ytimg.com/vi/srvUrASNj0s/hq720.jpg" alt="Thumbnail">
+              <div class="video-duration">25:10</div>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title">Responsive Web Design Principles for Modern Websites</h3>
+              <div class="channel-info">
+                <div class="channel-icon">F</div>
+                <div class="video-details">
+                  <div class="channel-name">Frontend Focus</div>
+                  <div class="video-meta">78K views • 2 weeks ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Video Card 4 -->
+          <div class="video-card">
+            <div class="thumbnail">
+              <img src="https://i.ytimg.com/vi/1PnVor36_40/hq720.jpg" alt="Thumbnail">
+              <div class="video-duration">15:33</div>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title">Building a Complete Dashboard UI with CSS</h3>
+              <div class="channel-info">
+                <div class="channel-icon">D</div>
+                <div class="video-details">
+                  <div class="channel-name">Design Mastery</div>
+                  <div class="video-meta">64K views • 5 days ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <footer>
-    <p>© 2025 InkTube | No ads. Just content.</p>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Feedback</a>
+      <a href="#">Contact</a>
+      <a href="#">Developers</a>
+    </div>
+    <p class="copyright">© 2025 InkTube | No ads. Just content.</p>
   </footer>
-
-  <script src="script.js"></script>
+  
+  <div class="mobile-nav">
+    <div class="mobile-nav-items">
+      <a href="#" class="active"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="#"><i class="fas fa-fire"></i><span>Trending</span></a>
+      <a href="#"><i class="fas fa-film"></i><span>Subscriptions</span></a>
+      <a href="#"><i class="fas fa-cloud-upload-alt"></i><span>Upload</span></a>
+      <a href="#"><i class="fas fa-user"></i><span>Account</span></a>
+    </div>
+  </div>
+  
+  <script>
+    function downloadVideo() {
+      const videoUrl = document.getElementById('main-video').getAttribute('src');
+      const a = document.createElement('a');
+      a.href = videoUrl;
+      a.download = 'inktube_video.mp4';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Show download confirmation
+      const downloadBtn = document.querySelector('.download-button');
+      const originalHTML = downloadBtn.innerHTML;
+      downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+      downloadBtn.style.background = '#4CAF50';
+      
+      setTimeout(() => {
+        downloadBtn.innerHTML = originalHTML;
+        downloadBtn.style.background = '';
+      }, 2000);
+    }
+    
+    // Simulate video views
+    document.getElementById('main-video').addEventListener('play', function() {
+      const viewsElement = document.querySelector('.player-info .video-meta span:first-child');
+      const views = parseInt(viewsElement.textContent.replace('K', '')) * 1000;
+      viewsElement.textContent = formatNumber(views + 1) + ' views';
+    });
+    
+    function formatNumber(num) {
+      if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+      }
+      if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+      }
+      return num;
+    }
+    
+    // Responsive video grid
+    function adjustVideoGrid() {
+      const videoGrid = document.querySelector('.video-grid');
+      const width = window.innerWidth;
+      
+      if (width < 768) {
+        videoGrid.style.gridTemplateColumns = '1fr';
+      } else if (width < 1200) {
+        videoGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
+      } else {
+        videoGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+      }
+    }
+    
+    window.addEventListener('resize', adjustVideoGrid);
+    adjustVideoGrid();
+  </script>
 </body>
 </html>
