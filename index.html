@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>InkTube - Ad-Free Video Experience</title>
+  <title>InkTube - YouTube Videos without Ads</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -53,6 +53,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
+      cursor: pointer;
     }
 
     .logo h1 {
@@ -331,13 +332,14 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
-    .video-player video {
+    .video-player iframe {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      outline: none;
+      border: none;
+      border-radius: var(--border-radius);
     }
 
     .player-info {
@@ -439,6 +441,57 @@
       justify-content: space-around;
     }
 
+    .mobile-nav-items a {
+      color: var(--dark-text);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      gap: 4px;
+    }
+
+    .mobile-nav-items a i {
+      font-size: 1.2rem;
+    }
+
+    .mobile-nav-items a.active {
+      color: var(--primary);
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary);
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: var(--light-text);
+    }
+
+    .no-results i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
     @media (max-width: 1200px) {
       .sidebar {
         width: 200px;
@@ -503,198 +556,74 @@
 </head>
 <body>
   <header>
-    <div class="logo">
+    <div class="logo" onclick="loadPopularVideos()">
       <i class="fas fa-play-circle"></i>
       <h1>InkTube</h1>
     </div>
     
     <div class="search-bar">
-      <input type="text" placeholder="Search videos...">
-      <button><i class="fas fa-search"></i></button>
+      <input type="text" id="search-input" placeholder="Search YouTube videos...">
+      <button onclick="searchVideos()"><i class="fas fa-search"></i></button>
     </div>
     
     <nav>
-      <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
-      <a href="#"><i class="fas fa-fire"></i> Trending</a>
-      <a href="#" class="upload"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
-      <a href="#"><i class="fas fa-history"></i> History</a>
+      <a href="#" class="active" onclick="loadPopularVideos()"><i class="fas fa-home"></i> Home</a>
+      <a href="#" onclick="loadTrendingVideos()"><i class="fas fa-fire"></i> Trending</a>
+      <a href="#" class="upload" onclick="showUploadMessage()"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
+      <a href="#" onclick="loadHistory()"><i class="fas fa-history"></i> History</a>
     </nav>
     
     <div class="user-actions">
-      <button class="btn"><i class="fas fa-bell"></i></button>
+      <button class="btn" onclick="showNotification()"><i class="fas fa-bell"></i></button>
       <div class="user-icon">U</div>
     </div>
   </header>
   
   <div class="container">
     <div class="sidebar">
-      <div class="sidebar-item active">
+      <div class="sidebar-item active" onclick="loadPopularVideos()">
         <i class="fas fa-home"></i> Home
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="loadTrendingVideos()">
         <i class="fas fa-fire"></i> Trending
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="showSubscriptionsMessage()">
         <i class="fas fa-film"></i> Subscriptions
       </div>
       
       <h3>Library</h3>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="loadHistory()">
         <i class="fas fa-history"></i> History
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="showWatchLaterMessage()">
         <i class="fas fa-clock"></i> Watch later
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="showLikedVideosMessage()">
         <i class="fas fa-thumbs-up"></i> Liked videos
       </div>
       
       <h3>Categories</h3>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="searchVideos('gaming')">
         <i class="fas fa-gamepad"></i> Gaming
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="searchVideos('music')">
         <i class="fas fa-music"></i> Music
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="searchVideos('sports')">
         <i class="fas fa-basketball-ball"></i> Sports
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="searchVideos('technology')">
         <i class="fas fa-laptop-code"></i> Technology
       </div>
-      <div class="sidebar-item">
+      <div class="sidebar-item" onclick="searchVideos('education')">
         <i class="fas fa-lightbulb"></i> Education
       </div>
     </div>
     
-    <div class="main-content">
-      <!-- Video Player Section -->
-      <div class="video-player-container">
-        <div class="video-player">
-          <video controls id="main-video">
-            <source src="assets/sample.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        
-        <div class="player-info">
-          <div class="video-details">
-            <h2 class="video-title">Creating Stunning UI Designs with CSS - A Complete Tutorial</h2>
-            <div class="video-meta">
-              <span>125K views</span>
-              <span>•</span>
-              <span>2 days ago</span>
-            </div>
-          </div>
-          
-          <div class="video-actions">
-            <button class="action-button">
-              <i class="fas fa-thumbs-up"></i> 8.2K
-            </button>
-            <button class="action-button">
-              <i class="fas fa-thumbs-down"></i> 42
-            </button>
-            <button class="action-button">
-              <i class="fas fa-share"></i> Share
-            </button>
-            <button class="action-button download-button" onclick="downloadVideo()">
-              <i class="fas fa-download"></i> Download
-            </button>
-          </div>
-        </div>
-        
-        <!-- Channel Info -->
-        <div class="channel-card">
-          <div class="channel-info">
-            <div class="channel-icon">D</div>
-            <div>
-              <div class="channel-name">Design Mastery</div>
-              <div class="subscribers">245K subscribers</div>
-            </div>
-            <button class="action-button" style="margin-left: auto;">Subscribe</button>
-          </div>
-          <p class="video-description">
-            Learn how to create stunning UI designs using modern CSS techniques. In this comprehensive tutorial, we'll cover Flexbox, Grid, animations, and responsive design principles. Perfect for beginners and experienced developers alike!
-          </p>
-        </div>
-      </div>
-      
-      <!-- Related Videos -->
-      <div class="related-videos">
-        <h3 class="section-title">Related Videos</h3>
-        <div class="video-grid">
-          <!-- Video Card 1 -->
-          <div class="video-card">
-            <div class="thumbnail">
-              <img src="https://i.ytimg.com/vi/4deVCNJq3qc/hq720.jpg" alt="Thumbnail">
-              <div class="video-duration">12:45</div>
-            </div>
-            <div class="video-info">
-              <h3 class="video-title">Advanced CSS Animations You Need to Know</h3>
-              <div class="channel-info">
-                <div class="channel-icon">W</div>
-                <div class="video-details">
-                  <div class="channel-name">Web Dev Simplified</div>
-                  <div class="video-meta">98K views • 1 week ago</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Video Card 2 -->
-          <div class="video-card">
-            <div class="thumbnail">
-              <img src="https://i.ytimg.com/vi/jV8B24rSN5o/hq720.jpg" alt="Thumbnail">
-              <div class="video-duration">18:22</div>
-            </div>
-            <div class="video-info">
-              <h3 class="video-title">Mastering CSS Grid Layout in 2023</h3>
-              <div class="channel-info">
-                <div class="channel-icon">C</div>
-                <div class="video-details">
-                  <div class="channel-name">CSS Masters</div>
-                  <div class="video-meta">152K views • 3 days ago</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Video Card 3 -->
-          <div class="video-card">
-            <div class="thumbnail">
-              <img src="https://i.ytimg.com/vi/srvUrASNj0s/hq720.jpg" alt="Thumbnail">
-              <div class="video-duration">25:10</div>
-            </div>
-            <div class="video-info">
-              <h3 class="video-title">Responsive Web Design Principles for Modern Websites</h3>
-              <div class="channel-info">
-                <div class="channel-icon">F</div>
-                <div class="video-details">
-                  <div class="channel-name">Frontend Focus</div>
-                  <div class="video-meta">78K views • 2 weeks ago</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Video Card 4 -->
-          <div class="video-card">
-            <div class="thumbnail">
-              <img src="https://i.ytimg.com/vi/1PnVor36_40/hq720.jpg" alt="Thumbnail">
-              <div class="video-duration">15:33</div>
-            </div>
-            <div class="video-info">
-              <h3 class="video-title">Building a Complete Dashboard UI with CSS</h3>
-              <div class="channel-info">
-                <div class="channel-icon">D</div>
-                <div class="video-details">
-                  <div class="channel-name">Design Mastery</div>
-                  <div class="video-meta">64K views • 5 days ago</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div class="main-content" id="main-content">
+      <!-- Content will be loaded dynamically -->
+      <div class="loading">
+        <div class="loading-spinner"></div>
       </div>
     </div>
   </div>
@@ -713,56 +642,490 @@
   
   <div class="mobile-nav">
     <div class="mobile-nav-items">
-      <a href="#" class="active"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="#"><i class="fas fa-fire"></i><span>Trending</span></a>
-      <a href="#"><i class="fas fa-film"></i><span>Subscriptions</span></a>
-      <a href="#"><i class="fas fa-cloud-upload-alt"></i><span>Upload</span></a>
-      <a href="#"><i class="fas fa-user"></i><span>Account</span></a>
+      <a href="#" class="active" onclick="loadPopularVideos()"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="#" onclick="loadTrendingVideos()"><i class="fas fa-fire"></i><span>Trending</span></a>
+      <a href="#" onclick="showSubscriptionsMessage()"><i class="fas fa-film"></i><span>Subscriptions</span></a>
+      <a href="#" onclick="showUploadMessage()"><i class="fas fa-cloud-upload-alt"></i><span>Upload</span></a>
+      <a href="#" onclick="showAccount()"><i class="fas fa-user"></i><span>Account</span></a>
     </div>
   </div>
   
   <script>
-    function downloadVideo() {
-      const videoUrl = document.getElementById('main-video').getAttribute('src');
-      const a = document.createElement('a');
-      a.href = videoUrl;
-      a.download = 'inktube_video.mp4';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      
-      // Show download confirmation
-      const downloadBtn = document.querySelector('.download-button');
-      const originalHTML = downloadBtn.innerHTML;
-      downloadBtn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
-      downloadBtn.style.background = '#4CAF50';
-      
-      setTimeout(() => {
-        downloadBtn.innerHTML = originalHTML;
-        downloadBtn.style.background = '';
-      }, 2000);
-    }
+    // YouTube API configuration
+    const API_KEY = 'AIzaSyDc0L0LrB0j6Fc3JkDq8Z5jGqk7v4tJzX0'; // Note: This is a demo key - replace with your own
+    const BASE_URL = 'https://www.googleapis.com/youtube/v3';
     
-    // Simulate video views
-    document.getElementById('main-video').addEventListener('play', function() {
-      const viewsElement = document.querySelector('.player-info .video-meta span:first-child');
-      const views = parseInt(viewsElement.textContent.replace('K', '')) * 1000;
-      viewsElement.textContent = formatNumber(views + 1) + ' views';
+    // Video history storage
+    let videoHistory = JSON.parse(localStorage.getItem('inktube_history')) || [];
+    
+    // DOM elements
+    const mainContent = document.getElementById('main-content');
+    
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPopularVideos();
+      adjustVideoGrid();
     });
     
+    // Load popular videos
+    async function loadPopularVideos() {
+      showLoading();
+      try {
+        const response = await fetch(`${BASE_URL}/videos?part=snippet,contentDetails,statistics&chart=mostPopular&maxResults=24&regionCode=US&key=${API_KEY}`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          renderVideoGrid(data.items);
+        } else {
+          showNoResults();
+        }
+      } catch (error) {
+        console.error('Error fetching popular videos:', error);
+        showError();
+      }
+    }
+    
+    // Load trending videos
+    async function loadTrendingVideos() {
+      showLoading();
+      try {
+        const response = await fetch(`${BASE_URL}/videos?part=snippet,contentDetails,statistics&chart=mostPopular&maxResults=24&regionCode=US&videoCategoryId=24&key=${API_KEY}`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          renderVideoGrid(data.items);
+        } else {
+          showNoResults();
+        }
+      } catch (error) {
+        console.error('Error fetching trending videos:', error);
+        showError();
+      }
+    }
+    
+    // Search videos
+    async function searchVideos(query = '') {
+      if (!query) {
+        query = document.getElementById('search-input').value;
+        if (!query) return;
+      }
+      
+      showLoading();
+      try {
+        const response = await fetch(`${BASE_URL}/search?part=snippet&maxResults=24&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          const videoIds = data.items.map(item => item.id.videoId).join(',');
+          const videosResponse = await fetch(`${BASE_URL}/videos?part=snippet,contentDetails,statistics&id=${videoIds}&key=${API_KEY}`);
+          const videosData = await videosResponse.json();
+          renderVideoGrid(videosData.items);
+        } else {
+          showNoResults();
+        }
+      } catch (error) {
+        console.error('Error searching videos:', error);
+        showError();
+      }
+    }
+    
+    // Load video history
+    function loadHistory() {
+      if (videoHistory.length === 0) {
+        mainContent.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-history"></i>
+            <h2>No History Available</h2>
+            <p>Your watched videos will appear here</p>
+          </div>
+        `;
+        return;
+      }
+      
+      renderVideoGrid(videoHistory);
+    }
+    
+    // Load a specific video
+    async function loadVideo(videoId) {
+      showLoading();
+      try {
+        // Get video details
+        const response = await fetch(`${BASE_URL}/videos?part=snippet,contentDetails,statistics&id=${videoId}&key=${API_KEY}`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          renderVideoPlayer(video);
+          
+          // Add to history
+          addToHistory(video);
+          
+          // Load related videos
+          loadRelatedVideos(videoId);
+        } else {
+          showNoResults();
+        }
+      } catch (error) {
+        console.error('Error loading video:', error);
+        showError();
+      }
+    }
+    
+    // Load related videos
+    async function loadRelatedVideos(videoId) {
+      try {
+        const response = await fetch(`${BASE_URL}/search?part=snippet&relatedToVideoId=${videoId}&type=video&maxResults=12&key=${API_KEY}`);
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          const videoIds = data.items.map(item => item.id.videoId).join(',');
+          const videosResponse = await fetch(`${BASE_URL}/videos?part=snippet,contentDetails,statistics&id=${videoIds}&key=${API_KEY}`);
+          const videosData = await videosResponse.json();
+          renderRelatedVideos(videosData.items);
+        }
+      } catch (error) {
+        console.error('Error loading related videos:', error);
+      }
+    }
+    
+    // Add video to history
+    function addToHistory(video) {
+      // Check if video is already in history
+      const existingIndex = videoHistory.findIndex(v => v.id === video.id);
+      if (existingIndex !== -1) {
+        // Remove existing entry
+        videoHistory.splice(existingIndex, 1);
+      }
+      
+      // Add to beginning of history
+      videoHistory.unshift(video);
+      
+      // Keep only last 50 videos
+      if (videoHistory.length > 50) {
+        videoHistory.pop();
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('inktube_history', JSON.stringify(videoHistory));
+    }
+    
+    // Render video grid
+    function renderVideoGrid(videos) {
+      mainContent.innerHTML = `
+        <div class="video-grid" id="main-video-grid">
+          ${videos.map(video => createVideoCard(video)).join('')}
+        </div>
+      `;
+      
+      // Add event listeners to video cards
+      videos.forEach(video => {
+        document.getElementById(`video-card-${video.id}`).addEventListener('click', () => loadVideo(video.id));
+      });
+      
+      adjustVideoGrid();
+    }
+    
+    // Render video player
+    function renderVideoPlayer(video) {
+      const snippet = video.snippet;
+      const stats = video.statistics;
+      
+      mainContent.innerHTML = `
+        <div class="video-player-container">
+          <div class="video-player">
+            <iframe 
+              id="ytplayer" 
+              src="https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen>
+            </iframe>
+          </div>
+          
+          <div class="player-info">
+            <div class="video-details">
+              <h2 class="video-title">${snippet.title}</h2>
+              <div class="video-meta">
+                <span>${formatNumber(stats.viewCount)} views</span>
+                <span>•</span>
+                <span>${formatDate(snippet.publishedAt)}</span>
+              </div>
+            </div>
+            
+            <div class="video-actions">
+              <button class="action-button" onclick="toggleLike()">
+                <i class="fas fa-thumbs-up"></i> ${formatNumber(stats.likeCount)}
+              </button>
+              <button class="action-button" onclick="toggleDislike()">
+                <i class="fas fa-thumbs-down"></i> ${formatNumber(stats.dislikeCount || 0)}
+              </button>
+              <button class="action-button" onclick="shareVideo()">
+                <i class="fas fa-share"></i> Share
+              </button>
+              <button class="action-button download-button" onclick="downloadVideo('${video.id}')">
+                <i class="fas fa-download"></i> Download
+              </button>
+            </div>
+          </div>
+          
+          <div class="channel-card">
+            <div class="channel-info">
+              <div class="channel-icon">${snippet.channelTitle.charAt(0)}</div>
+              <div>
+                <div class="channel-name">${snippet.channelTitle}</div>
+                <div class="subscribers">${formatNumber(stats.subscriberCount || 'N/A')} subscribers</div>
+              </div>
+              <button class="action-button" onclick="toggleSubscribe()">Subscribe</button>
+            </div>
+            <p class="video-description">${snippet.description}</p>
+          </div>
+        </div>
+        
+        <div class="related-videos">
+          <h3 class="section-title">Related Videos</h3>
+          <div class="video-grid" id="related-videos-grid">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Render related videos
+    function renderRelatedVideos(videos) {
+      const relatedGrid = document.getElementById('related-videos-grid');
+      if (!relatedGrid) return;
+      
+      relatedGrid.innerHTML = videos.map(video => createVideoCard(video)).join('');
+      
+      // Add event listeners to related video cards
+      videos.forEach(video => {
+        document.getElementById(`video-card-${video.id}`).addEventListener('click', () => loadVideo(video.id));
+      });
+    }
+    
+    // Create video card HTML
+    function createVideoCard(video) {
+      const snippet = video.snippet;
+      const duration = video.contentDetails ? formatDuration(video.contentDetails.duration) : 'N/A';
+      const views = video.statistics ? formatNumber(video.statistics.viewCount) : 'N/A';
+      
+      return `
+        <div class="video-card" id="video-card-${video.id}">
+          <div class="thumbnail">
+            <img src="${snippet.thumbnails.medium.url}" alt="${snippet.title}">
+            <div class="video-duration">${duration}</div>
+          </div>
+          <div class="video-info">
+            <h3 class="video-title">${snippet.title}</h3>
+            <div class="channel-info">
+              <div class="channel-icon">${snippet.channelTitle.charAt(0)}</div>
+              <div class="video-details">
+                <div class="channel-name">${snippet.channelTitle}</div>
+                <div class="video-meta">${views} views • ${formatDate(snippet.publishedAt)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Format large numbers
     function formatNumber(num) {
+      if (!num) return '0';
+      num = parseInt(num);
+      if (num >= 1000000000) {
+        return (num / 1000000000).toFixed(1) + 'B';
+      }
       if (num >= 1000000) {
         return (num / 1000000).toFixed(1) + 'M';
       }
       if (num >= 1000) {
         return (num / 1000).toFixed(1) + 'K';
       }
-      return num;
+      return num.toString();
+    }
+    
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+      if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+      return `${Math.floor(diffDays / 365)} years ago`;
+    }
+    
+    // Format duration (ISO 8601 format)
+    function formatDuration(duration) {
+      const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+      
+      const hours = (match[1] ? parseInt(match[1]) : 0);
+      const minutes = (match[2] ? parseInt(match[2]) : 0);
+      const seconds = (match[3] ? parseInt(match[3]) : 0);
+      
+      let result = '';
+      
+      if (hours > 0) {
+        result += `${hours}:`;
+      }
+      
+      if (minutes > 0) {
+        result += hours > 0 ? `${minutes.toString().padStart(2, '0')}:` : `${minutes}:`;
+      } else if (hours > 0) {
+        result += '00:';
+      }
+      
+      result += seconds.toString().padStart(2, '0');
+      
+      return result;
+    }
+    
+    // Toggle like functionality
+    function toggleLike() {
+      const likeButton = document.querySelector('.player-info .action-button:nth-child(1)');
+      const likeCount = parseInt(likeButton.textContent.replace(/[^0-9]/g, ''));
+      
+      if (likeButton.classList.contains('liked')) {
+        likeButton.innerHTML = '<i class="fas fa-thumbs-up"></i> ' + formatNumber(likeCount - 1);
+        likeButton.classList.remove('liked');
+      } else {
+        likeButton.innerHTML = '<i class="fas fa-thumbs-up"></i> ' + formatNumber(likeCount + 1);
+        likeButton.classList.add('liked');
+      }
+    }
+    
+    // Toggle dislike functionality
+    function toggleDislike() {
+      const dislikeButton = document.querySelector('.player-info .action-button:nth-child(2)');
+      
+      if (dislikeButton.classList.contains('disliked')) {
+        dislikeButton.classList.remove('disliked');
+      } else {
+        dislikeButton.classList.add('disliked');
+      }
+    }
+    
+    // Share video functionality
+    function shareVideo() {
+      const videoId = document.getElementById('ytplayer').src.split('/').pop().split('?')[0];
+      const shareUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: document.querySelector('.video-title').textContent,
+          text: 'Check out this video on InkTube',
+          url: shareUrl
+        });
+      } else {
+        navigator.clipboard.writeText(shareUrl)
+          .then(() => {
+            alert('Link copied to clipboard: ' + shareUrl);
+          })
+          .catch(err => {
+            console.error('Failed to copy: ', err);
+            prompt('Copy this link:', shareUrl);
+          });
+      }
+    }
+    
+    // Download video functionality
+    function downloadVideo(videoId) {
+      alert('For security reasons, downloading YouTube videos directly is not supported. You can use third-party services to download videos.');
+    }
+    
+    // Toggle subscribe functionality
+    function toggleSubscribe() {
+      const subscribeButton = document.querySelector('.channel-card .action-button');
+      
+      if (subscribeButton.textContent === 'Subscribe') {
+        subscribeButton.innerHTML = '<i class="fas fa-check"></i> Subscribed';
+        subscribeButton.style.background = 'rgba(255, 255, 255, 0.1)';
+      } else {
+        subscribeButton.innerHTML = 'Subscribe';
+        subscribeButton.style.background = '';
+      }
+    }
+    
+    // Show loading state
+    function showLoading() {
+      mainContent.innerHTML = `
+        <div class="loading">
+          <div class="loading-spinner"></div>
+        </div>
+      `;
+    }
+    
+    // Show no results message
+    function showNoResults() {
+      mainContent.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-search"></i>
+          <h2>No Videos Found</h2>
+          <p>Try a different search term or category</p>
+        </div>
+      `;
+    }
+    
+    // Show error message
+    function showError() {
+      mainContent.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h2>Error Loading Content</h2>
+          <p>Please try again later</p>
+        </div>
+      `;
+    }
+    
+    // Show account information
+    function showAccount() {
+      mainContent.innerHTML = `
+        <div class="channel-card">
+          <div class="channel-info">
+            <div class="channel-icon">U</div>
+            <div>
+              <div class="channel-name">Your Account</div>
+              <div class="subscribers">InkTube Premium Member</div>
+            </div>
+          </div>
+          <div class="video-description">
+            <h3>Account Settings</h3>
+            <ul>
+              <li>Email: user@example.com</li>
+              <li>Subscription: Premium (Ad-Free)</li>
+              <li>Watch History: ${videoHistory.length} videos</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Show message for unimplemented features
+    function showUploadMessage() {
+      alert('Video uploads are not available in this demo. This feature would require backend implementation.');
+    }
+    
+    function showSubscriptionsMessage() {
+      alert('Subscription management is not available in this demo.');
+    }
+    
+    function showWatchLaterMessage() {
+      alert('Watch later functionality is not available in this demo.');
+    }
+    
+    function showLikedVideosMessage() {
+      alert('Liked videos functionality is not available in this demo.');
+    }
+    
+    function showNotification() {
+      alert('You have no new notifications.');
     }
     
     // Responsive video grid
     function adjustVideoGrid() {
       const videoGrid = document.querySelector('.video-grid');
+      if (!videoGrid) return;
+      
       const width = window.innerWidth;
       
       if (width < 768) {
@@ -775,7 +1138,13 @@
     }
     
     window.addEventListener('resize', adjustVideoGrid);
-    adjustVideoGrid();
+    
+    // Handle Enter key in search
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchVideos();
+      }
+    });
   </script>
 </body>
 </html>
